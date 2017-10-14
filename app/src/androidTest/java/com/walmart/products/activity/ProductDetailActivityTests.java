@@ -41,7 +41,7 @@ public class ProductDetailActivityTests {
     private ViewPagerIdlingResource viewPagerIdlingResource;
 
     @Before
-    public void registerIntentServiceIdlingResource() {
+    public void registerIdlingResources() {
         // create & register IdlingResources
         Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
         walmartServiceIdlingResource = new WalmartServiceIdlingResource(instrumentation.getTargetContext());
@@ -52,7 +52,7 @@ public class ProductDetailActivityTests {
     }
 
     @After
-    public void unregisterIntentServiceIdlingResource() {
+    public void unregisterIdlingResources() {
         Espresso.unregisterIdlingResources(walmartServiceIdlingResource);
         Espresso.unregisterIdlingResources(viewPagerIdlingResource);
     }
