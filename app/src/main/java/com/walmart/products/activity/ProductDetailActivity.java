@@ -30,10 +30,7 @@ public class ProductDetailActivity extends BaseActivity {
         setItemCount(getIntent().getIntExtra("itemCount", 0));
         Log.i(TAG, "start itemCount: " + getItemCount());
         mBinding = DataBindingUtil.setContentView(this, R.layout.product_detail);
-        mAdapter = new ProductDetailAdapter(getSupportFragmentManager(), this);
-        mBinding.viewPager.setAdapter(mAdapter);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true); //show back button
-        notifyDataSetChanged();
     }
 
     @Override
@@ -56,6 +53,12 @@ public class ProductDetailActivity extends BaseActivity {
 
     @Override
     protected void onServiceBound() {
+        //------------------------------------------------------------------------------------
+        // Need to setAdapter after service is bound, otherwise you can receive error below
+        // ProductDetailFragment: showProduct failed  - WalmartService is not bound
+        mAdapter = new ProductDetailAdapter(getSupportFragmentManager(), this);
+        mBinding.viewPager.setAdapter(mAdapter);
+        //-------------------------------------------------------------------------------------
         if (getItemCount() == 0) {
             loadMore(new Function() {
                 @Override

@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Products.iml" filepath="$PROJECT_DIR$/Products.iml" />
+      <module fileurl="file://$PROJECT_DIR$/WalmartAndroidApp.iml" filepath="$PROJECT_DIR$/WalmartAndroidApp.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>
