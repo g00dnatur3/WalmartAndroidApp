@@ -41,7 +41,7 @@ import static com.walmart.products.service.WalmartServiceConfig.*;
 import static com.walmart.products.service.WalmartService.CacheEntry;
 
 @RunWith(MockitoJUnitRunner.class)
-public class WalmartServiceTest {
+public class WalmartServiceTests {
 
     protected final String TAG = getClass().getCanonicalName();
 
