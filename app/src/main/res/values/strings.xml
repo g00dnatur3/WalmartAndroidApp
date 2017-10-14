@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Products</string>
+    <string name="product_list">Walmart Products</string>
+    <string name="product_detail">Product Details</string>
+</resources>
