@@ -31,7 +31,7 @@ public class ProductDetailAdapter extends FragmentPagerAdapter {
             // the viewPage will try to get at index 0, even if we scroll to mStartPosition
             // immediately after calling setAdapter... this cause the service to start loading
             // at index 0 when we are at start position 400 (for example).
-            if (position == 0) {
+            if (position == 0 && mActivity.getStartPosition() > 0) {
                 position = mActivity.getStartPosition()-1;
                 addToCache = false;
                 mFirstFragmentLoaded = true;
