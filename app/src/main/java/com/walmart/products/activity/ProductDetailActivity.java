@@ -47,7 +47,7 @@ public class ProductDetailActivity extends BaseActivity {
     }
 
     @Override
-    protected View getMainView() {
+    public View getMainView() {
         return mBinding.viewPager;
     }
 
@@ -81,7 +81,7 @@ public class ProductDetailActivity extends BaseActivity {
     }
 
     @Override
-    protected void notifyDataSetChanged() {
+    public void notifyDataSetChanged() {
         mAdapter.notifyDataSetChanged();
     }
 

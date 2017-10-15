@@ -149,9 +149,9 @@ abstract class BaseActivity extends AppCompatActivity {
 
     protected abstract ProgressBar getProgressBar();
 
-    protected abstract View getMainView();
+    public abstract View getMainView();
 
     protected abstract void onServiceBound();
 
-    protected abstract void notifyDataSetChanged();
+    public abstract void notifyDataSetChanged();
 }

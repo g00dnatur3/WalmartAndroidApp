@@ -53,7 +53,7 @@ public class ProductListActivity extends BaseActivity {
     }
 
     @Override
-    protected View getMainView() {
+    public View getMainView() {
         return mBinding.recyclerView;
     }
 
@@ -78,7 +78,7 @@ public class ProductListActivity extends BaseActivity {
     }
 
     @Override
-    protected void notifyDataSetChanged() {
+    public void notifyDataSetChanged() {
         mAdapter.notifyDataSetChanged();
     }
 

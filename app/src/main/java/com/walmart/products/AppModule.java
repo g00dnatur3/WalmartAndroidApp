@@ -10,7 +10,12 @@ import com.walmart.products.service.WalmartServiceUtils;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Singleton;
 
@@ -21,8 +26,7 @@ import static com.walmart.products.service.WalmartServiceConfig.*;
 @dagger.Module
 public class AppModule {
 
-    // if you need to log, uncomment...
-    //private final String TAG = getClass().getCanonicalName();
+    private final String TAG = getClass().getCanonicalName();
 
     private final Application mApplication;
 
@@ -36,7 +40,18 @@ public class AppModule {
         httpClient.setLoggingLevel(Log.ERROR);
         httpClient.setConnectTimeout(HTTP_TIMEOUT);
         httpClient.setResponseTimeout(HTTP_TIMEOUT);
-        httpClient.setThreadPool(Executors.newFixedThreadPool(MAX_THREADS));
+        RejectedExecutionHandler rejectHandler = new RejectedExecutionHandler() {
+            @Override
+            public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
+                Log.e(TAG, "rejectedExecution - thread bounds and queue capacities are reached");
+            }
+        };
+        httpClient.setThreadPool(new ThreadPoolExecutor(
+                MIN_THREADS, MAX_THREADS,
+                THREAD_TIMEOUT,
+                TimeUnit.SECONDS,
+                new LinkedBlockingQueue<Runnable>(PAGE_SIZE*MAX_PAGES),
+                rejectHandler));
         return httpClient;
     }
 

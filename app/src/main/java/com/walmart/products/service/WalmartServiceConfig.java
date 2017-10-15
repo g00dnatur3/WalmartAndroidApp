@@ -18,7 +18,13 @@ public class WalmartServiceConfig {
 
     public static final int MAX_PAGES = 2;
 
-    public static final int MAX_THREADS = 4;
+    public static final int MIN_THREADS = 4;
+
+    public static final int MAX_THREADS = 8;
+
+    // when the number of threads is greater than the core,
+    // this is the maximum time that excess idle threads will wait for new tasks
+    public static final int THREAD_TIMEOUT = 10; //seconds
 
     public static final String BASE_URL = "http://api.walmartlabs.com";
 
