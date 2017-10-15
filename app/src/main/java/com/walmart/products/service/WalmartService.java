@@ -22,15 +22,12 @@ import javax.inject.Inject;
 
 import static com.walmart.products.service.WalmartServiceConfig.*;
 
+//TODO: Add EventEmitter as a member, add interface of "onPageLoaded(func(args))"
 /*
 EventEmitter is needed in the situation that client A is in the process of loading page X,
 And client B comes in and asks for page X, we need to now make two callbacks for when page X
 has completed loading, one to A and one to B. An EventEmitter can simplify this task.
  */
-
-//TODO: Add EventEmitter as a member, add interface of "onPageLoaded(func(args))"
-//TODO: A good EventEmitter implementation can be found below.
-// https://github.com/socketio/engine.io-client-java/blob/master/src/main/java/io/socket/emitter/Emitter.java
 
 /**
  * Serviced used to load Walmart products into memory and provide access on demand.
