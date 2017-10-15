@@ -97,7 +97,7 @@ public class WalmartServiceUtils {
                             pagesLoading.remove(pageNum); // no longer loading page, remove
                             mPageCache.put(pageNum, cacheEntry);
                         }
-                        Log.i(TAG, "Successfully loaded page: " + pageNum);
+                        Log.i(TAG, "loadPage success - page: " + pageNum);
                         onComplete.call(null, null);
                     }
                 });
@@ -114,11 +114,21 @@ public class WalmartServiceUtils {
      * Thumbnails are the only pre-loaded image, all other images will be loaded on demand
      */
     protected void loadThumbnails(Context context, final CacheEntry cacheEntry, final int pageNum, final Function onComplete) {
-        ArrayNode itemsNode = getItemsNode(cacheEntry.page());
-        if (itemsNode == null) return;
-        final int size = itemsNode.size();
 
-        // simple but effective strategy to concurrently download all the thumnails
+        // we dont return any errors here, if we fail we log it and call onComplete(null, null)
+        // internally we could add retry logic to the httpRequest for getting the thumbnail,
+        // but propagating such an error seems futile - try and resolve here (internally).
+
+        ArrayNode itemsNode = getItemsNode(cacheEntry.page());
+        if (itemsNode == null) {
+            // if gets here there is error somewhere else.
+            Log.i(TAG, "loadThumbnails failed - itemsNode is null");
+            onComplete.call(null, null);
+            return;
+        };
+
+        // simple but effective strategy to concurrently download all the thumbnails
+        final int size = itemsNode.size();
         Function _onComplete = new Function() {
             int _size = size;
             @Override
@@ -131,7 +141,7 @@ public class WalmartServiceUtils {
                     //Log.i(TAG, "Successfully loaded thumbnail, _size: " + _size);
                 }
                 if (_size == 0) {
-                    Log.i(TAG, "Finished loading thumbnails for page: " + pageNum);
+                    Log.i(TAG, "finished loading thumbnails for page: " + pageNum);
                     onComplete.call(null, null);
                 }
             }

@@ -7,7 +7,6 @@ import android.graphics.Bitmap;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
-import android.util.LruCache;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -229,9 +228,10 @@ public class WalmartService extends Service {
     /** Needed for efficient Bitmap Caching **/
     public static class CacheEntry {
         private final JsonNode mPage;
-        private final Map<String, Bitmap> mBitmaps = new HashMap<String, Bitmap>();
+        private final Map<String, Bitmap> mBitmaps;
         public CacheEntry(JsonNode page) {
             this.mPage = page;
+            mBitmaps = Collections.synchronizedMap(new HashMap<String, Bitmap>());
         }
         public JsonNode page() {
             return mPage;
