@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.loopj.android.http.AsyncHttpClient;
+import com.walmart.products.util.EventEmitter;
 import com.walmart.products.util.Function;
 
 import junit.framework.Assert;
@@ -50,6 +51,8 @@ public class WalmartServiceTests {
     Map<Integer, Boolean> mSpyPagesLoading = new HashMap<Integer, Boolean>();
     @Mock
     WalmartServiceUtils mMockUtils;
+    @Mock
+    EventEmitter mMockEmitter;
 
     /** not injected into walmartService **/
     @Mock
@@ -169,21 +172,20 @@ public class WalmartServiceTests {
 
         toIndex = PAGE_SIZE-1; // range is one page
 
-        /*
         // verify load one page success
         doAnswer(new Answer() {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 Object[] args = invocation.getArguments();
-                ((Function) args[3]).call(null, null);
+                ((Function) args[4]).call(null, null);
                 return null;
             }
-        }).when(mMockUtils).loadPage(
+        }).when(mMockUtils).loadPage(eq(mMockEmitter),
                 eq(walmartService), eq(mSpyPagesLoading), eq(toIndex / PAGE_SIZE), any(Function.class));
 
         walmartService.loadProducts(fromIndex, toIndex, mSpyOnComplete);
         verify(mSpyOnComplete).call(null, null);
-        verify(mMockUtils, times(1)).loadPage(
+        verify(mMockUtils, times(1)).loadPage(eq(mMockEmitter),
                 eq(walmartService), eq(mSpyPagesLoading), eq(toIndex / PAGE_SIZE), any(Function.class));
         reset(mSpyOnComplete);
         reset(mMockUtils);
@@ -193,20 +195,20 @@ public class WalmartServiceTests {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 Object[] args = invocation.getArguments();
-                ((Function) args[3]).call("some error");
+                ((Function) args[4]).call("some error");
                 return null;
             }
         }).when(mMockUtils).loadPage(
+                eq(mMockEmitter),
                 eq(walmartService),
                 eq(mSpyPagesLoading),
                 eq(fromIndex / PAGE_SIZE),
                 any(Function.class));
         walmartService.loadProducts(fromIndex, toIndex, mSpyOnComplete);
 
-        verify(mMockUtils, times(1)).loadPage(
+        verify(mMockUtils, times(1)).loadPage(eq(mMockEmitter),
                 eq(walmartService), eq(mSpyPagesLoading), eq(toIndex / PAGE_SIZE), any(Function.class));
         verify(mSpyOnComplete).call("some error");
-        */
     }
 
     @Test
@@ -214,7 +216,6 @@ public class WalmartServiceTests {
 
         toIndex = (PAGE_SIZE*2)-1; // range is two pages
 
-        /*
         // needed to ensure loadPage is being called with correct pageNums
         final List<Integer> pageNums = new ArrayList<Integer>();
         pageNums.add(fromIndex / PAGE_SIZE);
@@ -225,7 +226,7 @@ public class WalmartServiceTests {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 Object[] args = invocation.getArguments();
-                int pageNum = (Integer) args[2];
+                int pageNum = (Integer) args[3];
 
                 // check page is valid for given inputs - 0 or 1
                 assertTrue(pageNum <= (toIndex / PAGE_SIZE));
@@ -235,10 +236,11 @@ public class WalmartServiceTests {
                 pageNums.remove((Integer) pageNum);
                 assertTrue(size == (pageNums.size()+1)); // assert that an item was removed
 
-                ((Function) args[3]).call(null, null);
+                ((Function) args[4]).call(null, null);
                 return null;
             }
         }).when(mMockUtils).loadPage(
+                eq(mMockEmitter),
                 eq(walmartService),
                 eq(mSpyPagesLoading),
                 anyInt(),
@@ -247,9 +249,8 @@ public class WalmartServiceTests {
         walmartService.loadProducts(fromIndex, toIndex, mSpyOnComplete);
         verify(mSpyOnComplete).call(null, null);
 
-        verify(mMockUtils, times(2)).loadPage(
+        verify(mMockUtils, times(2)).loadPage(eq(mMockEmitter),
                 eq(walmartService), eq(mSpyPagesLoading), anyInt(), any(Function.class));
         reset(mSpyOnComplete);
-        */
     }
 }

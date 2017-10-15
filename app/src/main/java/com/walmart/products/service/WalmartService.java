@@ -37,9 +37,9 @@ public class WalmartService extends Service {
     // keep track of current loading pages to avoid loading the same page concurrently
     private Map<Integer, Boolean> mPagesLoading;
 
-    private final IBinder mBinder;
+    private EventEmitter mEmitter;
 
-    private final EventEmitter mEmitter;
+    private final IBinder mBinder;
 
     public WalmartService() {
         mPagesLoading = Collections.synchronizedMap(new HashMap<Integer, Boolean>());
