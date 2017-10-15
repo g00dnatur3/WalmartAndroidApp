@@ -16,6 +16,8 @@ public class ProductDetailAdapter extends FragmentPagerAdapter {
 
     private final ProductDetailActivity mActivity;
 
+    private boolean mFirstFragmentLoaded = false;
+
     public ProductDetailAdapter(FragmentManager fm, ProductDetailActivity mActivity) {
         super(fm);
         this.mActivity = mActivity;
@@ -24,6 +26,18 @@ public class ProductDetailAdapter extends FragmentPagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
+        boolean addToCache = true;
+        if (!mFirstFragmentLoaded) {
+            // the viewPage will try to get at index 0, even if we scroll to mStartPosition
+            // immediately after calling setAdapter... this cause the service to start loading
+            // at index 0 when we are at start position 400 (for example).
+            if (position == 0) {
+                position = mActivity.getStartPosition()-1;
+                addToCache = false;
+                mFirstFragmentLoaded = true;
+            }
+        }
+
         if (fragments.containsKey(position)) {
             return fragments.get(position);
         }
@@ -31,7 +45,7 @@ public class ProductDetailAdapter extends FragmentPagerAdapter {
         Bundle bundle = new Bundle();
         bundle.putInt("position", position);
         fragment.setArguments(bundle);
-        fragments.put(position, fragment);
+        if (addToCache) fragments.put(position, fragment);
         return fragment;
     }
 
