@@ -107,9 +107,8 @@ public class WalmartServiceUtils {
                         synchronized (WalmartServiceUtils.class) {
                             pagesLoading.remove(pageNum); // no longer loading page, remove
                             mPageCache.put(pageNum, cacheEntry);
-                            if (emitter.hasListeners(PAGE_LOADED_EVENT)) emitter.emit(PAGE_LOADED_EVENT);
                         }
-
+                        if (emitter.hasListeners(PAGE_LOADED_EVENT)) emitter.emit(PAGE_LOADED_EVENT);
                         Log.i(TAG, "loadPage complete - page: " + pageNum);
                         onComplete.call(null, null);
                     }

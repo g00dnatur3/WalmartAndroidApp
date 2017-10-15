@@ -97,7 +97,10 @@ abstract class BaseActivity extends AppCompatActivity {
         ensureDataLoaded(fromIndex, toIndex, onComplete, true);
     }
 
-    public void ensureDataLoaded(int fromIndex, final int toIndex, final Function onComplete, final boolean updateLoadingIndicator) {
+    public void ensureDataLoaded(final int fromIndex,
+                                 final int toIndex,
+                                 final Function onComplete,
+                                 final boolean updateLoadingIndicator) {
         if (getService() == null) {
             Log.i(TAG, "ensureDataLoaded failed - " + WALMART_SERVICE_NOT_BOUND);
             onComplete.call(WALMART_SERVICE_NOT_BOUND);
@@ -113,7 +116,7 @@ abstract class BaseActivity extends AppCompatActivity {
             public void call(Object... args) {
                 if (args[0] != null) {
                     Log.e(TAG, (String) args[0]);
-                    if (updateLoadingIndicator) hideLoadingIndicator();
+
                 } else {
                     postNotifyDataSetChanged(toIndex, updateLoadingIndicator);
                     Log.i(TAG, "ensureDataLoaded_After - itemCount: " + getItemCount());
