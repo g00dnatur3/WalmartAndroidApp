@@ -1,6 +1,5 @@
-package com.walmart.products.activity;
+package util;
 
-import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -19,7 +18,7 @@ public class WalmartServiceIdlingResource implements IdlingResource {
 
     private boolean mBound = false;
 
-    private ResourceCallback resourceCallback;
+    private ResourceCallback mResourceCallback;
 
     public WalmartServiceIdlingResource(Context context) {
         Intent intent = new Intent(context, WalmartService.class);
@@ -37,15 +36,15 @@ public class WalmartServiceIdlingResource implements IdlingResource {
 
         Log.i(TAG, "isIdleNow: " + idle);
 
-        if (idle && resourceCallback != null) {
-            resourceCallback.onTransitionToIdle();
+        if (idle && mResourceCallback != null) {
+            mResourceCallback.onTransitionToIdle();
         }
         return idle;
     }
 
     @Override
     public void registerIdleTransitionCallback(ResourceCallback resourceCallback) {
-        this.resourceCallback = resourceCallback;
+        this.mResourceCallback = resourceCallback;
     }
 
     protected ServiceConnection mConnection = new ServiceConnection() {

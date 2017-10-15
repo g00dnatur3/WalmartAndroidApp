@@ -1,4 +1,4 @@
-package com.walmart.products.activity;
+package util;
 
 import android.support.test.espresso.IdlingResource;
 import android.support.v4.view.ViewPager;

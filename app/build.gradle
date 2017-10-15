@@ -54,4 +54,5 @@ dependencies {
     //compile 'javax.inject:javax.inject:1'
 
     compile 'com.android.support.test.espresso:espresso-idling-resource:2.2.2'
+    compile 'com.android.support.test.espresso:espresso-contrib:2.2.2'
 }
