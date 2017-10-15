@@ -18,9 +18,20 @@ import com.walmart.products.R;
 import com.walmart.products.service.WalmartService;
 import com.walmart.products.util.Function;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static com.walmart.products.service.WalmartServiceConfig.PAGE_SIZE;
 
 public class ProductDetailFragment extends Fragment {
+
+    // needed to know when to stop showing loading indicator
+    private static final Map<Integer, Boolean> mFragmentsLoading = new HashMap<Integer, Boolean>();
+
+    // called by ProductDetailAdapter constructor
+    public static void clearFragmentsLoading() {
+        mFragmentsLoading.clear();
+    }
 
     protected final String TAG = getClass().getCanonicalName();
 
@@ -32,18 +43,6 @@ public class ProductDetailFragment extends Fragment {
     private ImageView mImage;
     private TextView mName;
     private TextView mDesc;
-
-    private boolean mVisibleToUser = false;
-
-    public boolean isVisibleToUser() {
-        return mVisibleToUser;
-    }
-
-    public void setUserVisibleHint(boolean isVisibleToUser) {
-        super.setUserVisibleHint(isVisibleToUser);
-        this.mVisibleToUser = isVisibleToUser;
-        //Log.i(TAG, "setUserVisibleHint: " + isVisibleToUser);
-    }
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,23 +63,30 @@ public class ProductDetailFragment extends Fragment {
         mImage = (ImageView) view.findViewById(R.id.detail_image);
         mName = (TextView) view.findViewById(R.id.detail_name);
         mDesc = (TextView) view.findViewById(R.id.detail_desc);
+
+        // viewPager has 3 views at any given moment and only one is visible
+        // in order to know when they are all completed loading
+        // we check if the mFragmentsLoading.isEmpty
+        showLoadingIndicator();
+
         Function onComplete = new Function() {
             @Override
             public void call(Object... args) {
                 showProduct(mPosition);
             }
         };
+
         // if we are near the end, load more
         if (mActivity.getItemCount()-mPosition <= 20) {
             Log.i(TAG, "Calling mActivity.loadMore");
-            mActivity.loadMore(onComplete);
+            mActivity.loadMore(onComplete, false); //false=do not update loading indicator
         }
         else {
             // ensure the data we want is loaded
             int fromIndex = mPosition - (PAGE_SIZE/2);
             if (fromIndex < 0) fromIndex = 0;
             int toIndex = mPosition + (PAGE_SIZE/2);
-            mActivity.ensureDataLoaded(fromIndex, toIndex, onComplete);
+            mActivity.ensureDataLoaded(fromIndex, toIndex, onComplete, false); //false=do not update loading indicator
         }
     }
 
@@ -103,15 +109,27 @@ public class ProductDetailFragment extends Fragment {
                         } else {
                             mImage.setImageBitmap((Bitmap) args[1]);
                         }
-                        mActivity.hideLoadingIndicator();
+                        hideLoadingIndicator();
                     }
                 };
-                if (mVisibleToUser) mActivity.showLoadingIndicator();
                 service.getMediumImage(mPosition, onComplete);
+            } else {
+                hideLoadingIndicator();
+                Log.e(TAG, "showProduct failed  - productNode is null");
             }
         } else {
+            hideLoadingIndicator();
             Log.e(TAG, "showProduct failed  - WalmartService is not bound");
         }
     }
 
+    private void showLoadingIndicator() {
+        mFragmentsLoading.put(mPosition, true);
+        mActivity.showLoadingIndicator();
+    }
+
+    private void hideLoadingIndicator() {
+        mFragmentsLoading.remove(mPosition);
+        if (mFragmentsLoading.isEmpty()) mActivity.hideLoadingIndicator();
+    }
 }

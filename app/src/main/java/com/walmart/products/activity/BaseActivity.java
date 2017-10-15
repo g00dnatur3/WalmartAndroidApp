@@ -78,18 +78,22 @@ abstract class BaseActivity extends AppCompatActivity {
         return (mBound) ? mService : null;
     }
 
-    private void postNotifyDataSetChanged(final int newItemCount) {
+    private void postNotifyDataSetChanged(final int newItemCount, final boolean updateLoadingIndicator) {
         getMainView().post(new Runnable() {
             @Override
             public void run() {
                 if (getItemCount() < newItemCount) setItemCount(newItemCount);
                 notifyDataSetChanged();
-                hideLoadingIndicator();
+                if (updateLoadingIndicator) hideLoadingIndicator();
             }
         });
     }
 
     public void ensureDataLoaded(int fromIndex, final int toIndex, final Function onComplete) {
+        ensureDataLoaded(fromIndex, toIndex, onComplete, true);
+    }
+
+    public void ensureDataLoaded(int fromIndex, final int toIndex, final Function onComplete, final boolean updateLoadingIndicator) {
         if (getService() == null) {
             Log.i(TAG, "ensureDataLoaded failed - " + WALMART_SERVICE_NOT_BOUND);
             onComplete.call(WALMART_SERVICE_NOT_BOUND);
@@ -101,14 +105,14 @@ abstract class BaseActivity extends AppCompatActivity {
             onComplete.call(null, null); //notify ScrollListener loading is complete
             return;
         }
-        showLoadingIndicator();
+        if (updateLoadingIndicator) showLoadingIndicator();
         mService.loadProducts(fromIndex, toIndex, new Function() {
             @Override
             public void call(Object... args) {
                 if (args[0] != null) {
                     Log.e(TAG, (String) args[0]);
                 } else {
-                    postNotifyDataSetChanged(toIndex);
+                    postNotifyDataSetChanged(toIndex, updateLoadingIndicator);
                     Log.i(TAG, "ensureDataLoaded_After - itemCount: " + getItemCount());
                 }
                 onComplete.call(null, null);
@@ -117,12 +121,16 @@ abstract class BaseActivity extends AppCompatActivity {
     }
 
     public void loadMore(final Function onComplete) {
+        loadMore(onComplete, true);
+    }
+
+    public void loadMore(final Function onComplete, final boolean updateLoadingIndicator) {
         if (getService() == null) {
             Log.i(TAG, "loadMore failed - " + WALMART_SERVICE_NOT_BOUND);
             onComplete.call(WALMART_SERVICE_NOT_BOUND);
             return;
         }
-        showLoadingIndicator();
+        if (updateLoadingIndicator) showLoadingIndicator();
         int fromIndex = getItemCount();
         final int toIndex = getItemCount() + PAGE_SIZE-1;
         mService.loadProducts(fromIndex, toIndex, new Function() {
@@ -131,7 +139,7 @@ abstract class BaseActivity extends AppCompatActivity {
                 if (args[0] != null) {
                     Log.e(TAG, (String) args[0]);
                 } else {
-                    postNotifyDataSetChanged(toIndex);
+                    postNotifyDataSetChanged(toIndex, updateLoadingIndicator);
                     Log.i(TAG, "loadMore_After - itemCount: " + getItemCount());
                 }
                 onComplete.call(null, null);
@@ -154,4 +162,5 @@ abstract class BaseActivity extends AppCompatActivity {
     protected abstract void onServiceBound();
 
     public abstract void notifyDataSetChanged();
+
 }

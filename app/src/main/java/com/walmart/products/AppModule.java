@@ -43,7 +43,8 @@ public class AppModule {
         RejectedExecutionHandler rejectHandler = new RejectedExecutionHandler() {
             @Override
             public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
-                Log.e(TAG, "rejectedExecution - thread bounds and queue capacities are reached");
+                Log.e(TAG + ".asyncHttpClient",
+                        "rejectedExecution - thread bounds and queue capacities are reached");
             }
         };
         httpClient.setThreadPool(new ThreadPoolExecutor(

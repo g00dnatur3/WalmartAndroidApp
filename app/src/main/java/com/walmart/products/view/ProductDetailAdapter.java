@@ -19,6 +19,7 @@ public class ProductDetailAdapter extends FragmentPagerAdapter {
     public ProductDetailAdapter(FragmentManager fm, ProductDetailActivity mActivity) {
         super(fm);
         this.mActivity = mActivity;
+        ProductDetailFragment.clearFragmentsLoading();
     }
 
     @Override
