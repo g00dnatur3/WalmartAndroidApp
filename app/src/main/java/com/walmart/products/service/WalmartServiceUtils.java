@@ -53,7 +53,7 @@ public class WalmartServiceUtils {
         final int pageNum = index / PAGE_SIZE;
         CacheEntry cacheEntry = mPageCache.get(pageNum);
         if (cacheEntry == null) {
-            StringBuffer err = new StringBuffer("failed to getPage at: ");
+            StringBuffer err = new StringBuffer("getPage failed - at: ");
             err.append(pageNum).append(", reason: page not loaded into cache");
             Log.v(TAG,  err.toString());
         }
@@ -97,7 +97,7 @@ public class WalmartServiceUtils {
                             pagesLoading.remove(pageNum); // no longer loading page, remove
                             mPageCache.put(pageNum, cacheEntry);
                         }
-                        Log.i(TAG, "loadPage success - page: " + pageNum);
+                        Log.i(TAG, "loadPage complete - page: " + pageNum);
                         onComplete.call(null, null);
                     }
                 });
@@ -115,15 +115,11 @@ public class WalmartServiceUtils {
      */
     protected void loadThumbnails(Context context, final CacheEntry cacheEntry, final int pageNum, final Function onComplete) {
 
-        // we dont return any errors here, if we fail we log it and call onComplete(null, null)
-        // internally we could add retry logic to the httpRequest for getting the thumbnail,
-        // but propagating such an error seems futile - try and resolve here (internally).
-
         ArrayNode itemsNode = getItemsNode(cacheEntry.page());
         if (itemsNode == null) {
             // if gets here there is error somewhere else.
             Log.i(TAG, "loadThumbnails failed - itemsNode is null");
-            onComplete.call(null, null);
+            onComplete.call("itemsNode is null");
             return;
         };
 
@@ -141,7 +137,7 @@ public class WalmartServiceUtils {
                     //Log.i(TAG, "Successfully loaded thumbnail, _size: " + _size);
                 }
                 if (_size == 0) {
-                    Log.i(TAG, "finished loading thumbnails for page: " + pageNum);
+                    Log.i(TAG, "loadThumbnails complete - for page: " + pageNum);
                     onComplete.call(null, null);
                 }
             }
@@ -160,9 +156,8 @@ public class WalmartServiceUtils {
 
     protected void loadThumbnail(Context context, final JsonNode itemNode, final String key, final Function onComplete) {
         if (itemNode.get("thumbnailImage") == null) {
-            String err = "thumbnailImage url is empty";
-            Log.e(TAG, "loadThumbnail failed - " + err);
-            onComplete.call(err);
+            Log.e(TAG, "loadThumbnail failed - thumbnailImage url is empty");
+            onComplete.call("thumbnailImage url is empty");
             return;
         }
         loadBitmap(context, itemNode.get("thumbnailImage").textValue(), key, onComplete);
@@ -186,7 +181,7 @@ public class WalmartServiceUtils {
         if (pageNode.get("items") instanceof ArrayNode) {
             return (ArrayNode) pageNode.get("items");
         } else {
-            StringBuffer err = new StringBuffer("failed to getItemsNode");
+            StringBuffer err = new StringBuffer("getItemsNode failed");
             err.append(" - JsonNode.items is not an arrayNode");
             Log.e(TAG,  err.toString());
             return null;
