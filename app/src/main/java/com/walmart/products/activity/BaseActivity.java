@@ -96,6 +96,8 @@ abstract class BaseActivity extends AppCompatActivity {
             return;
         }
         if (mService.isLoaded(fromIndex, toIndex) || mService.isLoading(fromIndex, toIndex)) {
+            //TODO: WalmartService needs an EventEmitter for "LOAD_COMPLETE" events:
+            //TODO: The service.on("LOAD_COMPLETE", callback) -- callback will have pageNun
             onComplete.call(null, null); //notify ScrollListener loading is complete
             return;
         }
