@@ -7,6 +7,7 @@ import com.loopj.android.http.AsyncHttpClient;
 import com.walmart.products.service.WalmartService;
 import com.walmart.products.service.WalmartServiceUtils;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
@@ -58,13 +59,14 @@ public class AppModule {
 
     @Provides @Singleton
     Map<Integer, String> providePageUrls() {
-        HashMap<Integer, String> pageUrls = new HashMap<Integer, String>();
+        Map<Integer, String> pageUrls = Collections.synchronizedMap(new HashMap<Integer, String>());
         pageUrls.put(0, FIRST_PAGE_URL);
         return pageUrls;
     }
 
     @Provides @Singleton
     LruCache<Integer, WalmartService.CacheEntry> providePageCache() {
+        // LruCache is already thread safe
         return new LruCache<Integer, WalmartService.CacheEntry>(MAX_PAGES);
     }
 }

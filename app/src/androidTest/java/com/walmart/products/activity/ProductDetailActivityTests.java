@@ -28,41 +28,28 @@ import static org.hamcrest.Matchers.allOf;
 import com.walmart.products.R;
 
 @RunWith(AndroidJUnit4.class)
-public class ProductDetailActivityTests {
-
-    final String firstProductName = "Rose Cottage Girls' Hunter Green  Jacket Dress";
-
-    final String secondProductName = "Wrangler Men's Relaxed Fit Jean";
+public class ProductDetailActivityTests extends BaseActivityTests {
 
     @Rule
     public ActivityTestRule<ProductDetailActivity> mActivityRule = new ActivityTestRule<>(ProductDetailActivity.class);
 
-    private WalmartServiceIdlingResource walmartServiceIdlingResource;
-    private ViewPagerIdlingResource viewPagerIdlingResource;
-
-    @Before
-    public void registerIdlingResources() {
-        // create & register IdlingResources
-        Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
-        walmartServiceIdlingResource = new WalmartServiceIdlingResource(instrumentation.getTargetContext());
-        Espresso.registerIdlingResources(walmartServiceIdlingResource);
+    @Override
+    protected void onBefore() {
         viewPagerIdlingResource = new ViewPagerIdlingResource(
                 (ViewPager) mActivityRule.getActivity().findViewById(R.id.view_pager));
         Espresso.registerIdlingResources(viewPagerIdlingResource);
     }
 
-    @After
-    public void unregisterIdlingResources() {
-        Espresso.unregisterIdlingResources(walmartServiceIdlingResource);
+    @Override
+    protected void onAfter() {
         Espresso.unregisterIdlingResources(viewPagerIdlingResource);
     }
 
     @Test
-    public void testSwipeBetweenFirstAndSecondPage() {
+    public void test_swipeBetweenFirstAndSecondPage() {
         onView(withText("Product Details")).check(matches(isDisplayed()));
         onView( allOf(isDisplayed(), withId(R.id.detail_name))).check(matches(withText(firstProductName)));
         onView(ViewMatchers.withId(R.id.view_pager)).perform(swipeLeft());
         onView( allOf(isDisplayed(), withId(R.id.detail_name))).check(matches(withText(secondProductName)));
     }
-
 }

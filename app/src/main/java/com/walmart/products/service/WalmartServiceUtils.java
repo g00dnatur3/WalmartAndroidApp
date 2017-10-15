@@ -76,23 +76,27 @@ public class WalmartServiceUtils {
             onComplete.call("loadPage failed - next page not found in mPageUrls");
             return;
         }
-        // page already being loaded, lets not waste time and resources loading it again...
-        if (pagesLoading.containsKey(pageNum)) {
-            onComplete.call("loadPage failed - page already being loaded: " + pageNum);
-            return;
+        synchronized (this) {
+            // page already being loaded, lets not waste time and resources loading it again...
+            if (pagesLoading.containsKey(pageNum)) {
+                onComplete.call("loadPage failed - page already being loaded: " + pageNum);
+                return;
+            }
+            // ok lets load the page
+            pagesLoading.put(pageNum, true);
         }
-        // ok lets load the page
-        pagesLoading.put(pageNum, true);
         mHttpClient.get(context, BASE_URL + pageUrl, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JsonNode pageNode) {
-                pagesLoading.remove(pageNum); // no longer loading page, remove
                 mPageUrls.put(pageNum+1, pageNode.get("nextPage").textValue());
                 final CacheEntry cacheEntry = new CacheEntry(pageNode);
                 loadThumbnails(context, cacheEntry, pageNum, new Function() {
                     @Override
                     public void call(Object... args) {
-                        mPageCache.put(pageNum, cacheEntry);
+                        synchronized (WalmartServiceUtils.class) {
+                            pagesLoading.remove(pageNum); // no longer loading page, remove
+                            mPageCache.put(pageNum, cacheEntry);
+                        }
                         Log.i(TAG, "Successfully loaded page: " + pageNum);
                         onComplete.call(null, null);
                     }

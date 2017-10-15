@@ -13,6 +13,8 @@ import com.walmart.products.service.WalmartService;
 
 public class WalmartServiceIdlingResource implements IdlingResource {
 
+    protected final String TAG = getClass().getCanonicalName();
+
     private WalmartService mService;
 
     private boolean mBound = false;
@@ -32,6 +34,9 @@ public class WalmartServiceIdlingResource implements IdlingResource {
     @Override
     public boolean isIdleNow() {
         boolean idle = mBound && !mService.isLoading();
+
+        Log.i(TAG, "isIdleNow: " + idle);
+
         if (idle && resourceCallback != null) {
             resourceCallback.onTransitionToIdle();
         }
