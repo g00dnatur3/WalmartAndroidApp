@@ -64,6 +64,11 @@ public class ProductDetailFragment extends Fragment {
         mName = (TextView) view.findViewById(R.id.detail_name);
         mDesc = (TextView) view.findViewById(R.id.detail_desc);
 
+        // the viewPager will try to get at index 0, even if we scroll to mStartPosition
+        // immediately after calling setAdapter... this cause the service to start loading
+        // at index 0 when we are at start position 400 (for example).
+        if (mPosition < mActivity.getStartPosition()) return; //this is invalid fragment
+
         // viewPager has 3 views at any given moment and only one is visible
         // in order to know when they are all completed loading
         // we check if the mFragmentsLoading.isEmpty

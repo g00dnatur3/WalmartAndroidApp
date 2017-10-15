@@ -35,6 +35,10 @@ abstract class BaseActivity extends AppCompatActivity {
         return mItemCount;
     }
 
+    public int getStartPosition() {
+        return mStartPosition;
+    }
+
     // only the parent activity can change item count for this activity.
     protected void setItemCount(int mItemCount) {
         Log.i(TAG, "setItemCount: " + mItemCount);
