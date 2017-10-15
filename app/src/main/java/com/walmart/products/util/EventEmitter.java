@@ -1,5 +1,7 @@
 package com.walmart.products.util;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -13,6 +15,8 @@ import java.util.concurrent.ConcurrentMap;
  * @see <a href="https://github.com/component/emitter">https://github.com/component/emitter</a>
  */
 public class EventEmitter {
+
+    protected final String TAG = getClass().getCanonicalName();
 
     private ConcurrentMap<String, ConcurrentLinkedQueue<Function>> callbacks
             = new ConcurrentHashMap<String, ConcurrentLinkedQueue<Function>>();
@@ -44,7 +48,7 @@ public class EventEmitter {
      * @return a reference to this object.
      */
     public EventEmitter once(final String event, final Function fn) {
-        this.on(event, new OnceFunction(event, fn));
+        this.on(event, new OnceListener(event, fn));
         return this;
     }
 
@@ -94,8 +98,8 @@ public class EventEmitter {
     private static boolean sameAs(Function fn, Function internal) {
         if (fn.equals(internal)) {
             return true;
-        } else if (internal instanceof OnceFunction) {
-            return fn.equals(((OnceFunction) internal).fn);
+        } else if (internal instanceof OnceListener) {
+            return fn.equals(((OnceListener) internal).fn);
         } else {
             return false;
         }
@@ -112,7 +116,8 @@ public class EventEmitter {
         ConcurrentLinkedQueue<Function> callbacks = this.callbacks.get(event);
         if (callbacks != null) {
             for (Function fn : callbacks) {
-                fn.call(args);
+                if (args.length == 0) fn.call(null, null);
+                else fn.call(args);
             }
         }
         return this;
@@ -141,12 +146,12 @@ public class EventEmitter {
         return callbacks != null && !callbacks.isEmpty();
     }
 
-    private class OnceFunction implements Function {
+    private class OnceListener implements Function {
 
         public final String event;
         public final Function fn;
 
-        public OnceFunction(String event, Function fn) {
+        public OnceListener(String event, Function fn) {
             this.event = event;
             this.fn = fn;
         }

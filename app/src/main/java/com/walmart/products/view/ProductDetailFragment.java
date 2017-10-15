@@ -25,6 +25,8 @@ import static com.walmart.products.service.WalmartServiceConfig.PAGE_SIZE;
 
 public class ProductDetailFragment extends Fragment {
 
+    protected final String TAG = getClass().getCanonicalName();
+
     // needed to know when to stop showing loading indicator
     private static final Map<Integer, Boolean> mFragmentsLoading = new HashMap<Integer, Boolean>();
 
@@ -32,8 +34,6 @@ public class ProductDetailFragment extends Fragment {
     public static void clearFragmentsLoading() {
         mFragmentsLoading.clear();
     }
-
-    protected final String TAG = getClass().getCanonicalName();
 
     private ProductDetailActivity mActivity;
 
@@ -63,13 +63,14 @@ public class ProductDetailFragment extends Fragment {
         mImage = (ImageView) view.findViewById(R.id.detail_image);
         mName = (TextView) view.findViewById(R.id.detail_name);
         mDesc = (TextView) view.findViewById(R.id.detail_desc);
+        Log.i(TAG, "onViewCreated - position: " + mPosition);
 
         // viewPager has 3 views at any given moment and only one is visible
         // in order to know when they are all completed loading
         // we check if the mFragmentsLoading.isEmpty
         showLoadingIndicator();
 
-        Function onComplete = new Function() {
+        final Function onComplete = new Function() {
             @Override
             public void call(Object... args) {
                 showProduct(mPosition);
@@ -115,11 +116,11 @@ public class ProductDetailFragment extends Fragment {
                 service.getMediumImage(mPosition, onComplete);
             } else {
                 hideLoadingIndicator();
-                Log.e(TAG, "showProduct failed  - productNode is null");
+                Log.e(TAG, "showProduct failed  - productNode is null, position: " + mPosition);
             }
         } else {
             hideLoadingIndicator();
-            Log.e(TAG, "showProduct failed  - WalmartService is not bound");
+            Log.e(TAG, "showProduct failed  - WalmartService is not bound, position: " + mPosition);
         }
     }
 

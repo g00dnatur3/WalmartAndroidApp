@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.BinaryHttpResponseHandler;
 import com.walmart.products.http.JsonHttpResponseHandler;
+import com.walmart.products.util.EventEmitter;
 import com.walmart.products.util.Function;
 
 import java.util.Iterator;
@@ -64,7 +65,7 @@ public class WalmartServiceUtils {
         return mPageCache.get(index) != null;
     }
 
-    protected void loadPage(final Context context, final Map<Integer, Boolean> pagesLoading, final int pageNum, final Function onComplete) {
+    protected void loadPage(final EventEmitter emitter, final Context context, final Map<Integer, Boolean> pagesLoading, final int pageNum, final Function onComplete) {
         // page already loaded
         if (isPageLoaded(pageNum)) {
             onComplete.call(null, null);
@@ -76,10 +77,20 @@ public class WalmartServiceUtils {
             onComplete.call("loadPage failed - next page not found in mPageUrls");
             return;
         }
+        final String PAGE_LOADED_EVENT = "PAGE_" + pageNum + "_LOADED";
         synchronized (this) {
             // page already being loaded, lets not waste time and resources loading it again...
             if (pagesLoading.containsKey(pageNum)) {
-                onComplete.call("loadPage failed - page already being loaded: " + pageNum);
+                StringBuffer sb = new StringBuffer();
+                sb.append("loadPage failed - page already being loaded: ").append(pageNum);
+                sb.append(", onComplete will be called once it is loaded");
+                Log.i(TAG, sb.toString());
+                /*
+                EventEmitter is needed in the situation that client A is in the process of loading page X,
+                And client B comes in and asks for page X, we need to now make two callbacks for when page X
+                has completed loading, one to A and one to B. An EventEmitter simplifies this task.
+                 */
+                emitter.once(PAGE_LOADED_EVENT, onComplete);
                 return;
             }
             // ok lets load the page
@@ -96,7 +107,9 @@ public class WalmartServiceUtils {
                         synchronized (WalmartServiceUtils.class) {
                             pagesLoading.remove(pageNum); // no longer loading page, remove
                             mPageCache.put(pageNum, cacheEntry);
+                            if (emitter.hasListeners(PAGE_LOADED_EVENT)) emitter.emit(PAGE_LOADED_EVENT);
                         }
+
                         Log.i(TAG, "loadPage complete - page: " + pageNum);
                         onComplete.call(null, null);
                     }

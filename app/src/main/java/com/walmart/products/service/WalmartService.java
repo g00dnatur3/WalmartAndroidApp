@@ -11,6 +11,7 @@ import android.util.Log;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.walmart.products.Application;
+import com.walmart.products.util.EventEmitter;
 import com.walmart.products.util.Function;
 
 import java.util.Collections;
@@ -20,13 +21,6 @@ import java.util.Map;
 import javax.inject.Inject;
 
 import static com.walmart.products.service.WalmartServiceConfig.*;
-
-//TODO: Add EventEmitter as a member, add interface of "onPageLoaded(func(args))"
-/*
-EventEmitter is needed in the situation that client A is in the process of loading page X,
-And client B comes in and asks for page X, we need to now make two callbacks for when page X
-has completed loading, one to A and one to B. An EventEmitter can simplify this task.
- */
 
 /**
  * Serviced used to load Walmart products into memory and provide access on demand.
@@ -45,9 +39,12 @@ public class WalmartService extends Service {
 
     private final IBinder mBinder;
 
+    private final EventEmitter mEmitter;
+
     public WalmartService() {
         mPagesLoading = Collections.synchronizedMap(new HashMap<Integer, Boolean>());
         mBinder = new WalmartServiceBinder();
+        mEmitter = new EventEmitter();
     }
 
     @Override
@@ -215,14 +212,14 @@ public class WalmartService extends Service {
                         onComplete.call(args[0]);
                     }
                     else {
-                        mUtils.loadPage(context, mPagesLoading, endPage, onComplete);
+                        mUtils.loadPage(mEmitter, context, mPagesLoading, endPage, onComplete);
                     }
                 }
             };
         } else {
             _onComplete = onComplete;
         }
-        mUtils.loadPage(context, mPagesLoading, beginPage, _onComplete);
+        mUtils.loadPage(mEmitter, context, mPagesLoading, beginPage, _onComplete);
     }
 
     /** Needed for efficient Bitmap Caching **/

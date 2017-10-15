@@ -86,7 +86,7 @@ abstract class BaseActivity extends AppCompatActivity {
         getMainView().post(new Runnable() {
             @Override
             public void run() {
-                if (getItemCount() < newItemCount) setItemCount(newItemCount);
+                if (newItemCount > getItemCount()) setItemCount(newItemCount);
                 notifyDataSetChanged();
                 if (updateLoadingIndicator) hideLoadingIndicator();
             }
@@ -104,8 +104,6 @@ abstract class BaseActivity extends AppCompatActivity {
             return;
         }
         if (mService.isLoaded(fromIndex, toIndex) || mService.isLoading(fromIndex, toIndex)) {
-            //TODO: WalmartService needs an EventEmitter for "LOAD_COMPLETE" events:
-            //TODO: The service.on("LOAD_COMPLETE", callback) -- callback will have pageNun
             onComplete.call(null, null); //notify ScrollListener loading is complete
             return;
         }
@@ -115,6 +113,7 @@ abstract class BaseActivity extends AppCompatActivity {
             public void call(Object... args) {
                 if (args[0] != null) {
                     Log.e(TAG, (String) args[0]);
+                    if (updateLoadingIndicator) hideLoadingIndicator();
                 } else {
                     postNotifyDataSetChanged(toIndex, updateLoadingIndicator);
                     Log.i(TAG, "ensureDataLoaded_After - itemCount: " + getItemCount());
@@ -134,21 +133,25 @@ abstract class BaseActivity extends AppCompatActivity {
             onComplete.call(WALMART_SERVICE_NOT_BOUND);
             return;
         }
-        if (updateLoadingIndicator) showLoadingIndicator();
         int fromIndex = getItemCount();
-        final int toIndex = getItemCount() + PAGE_SIZE-1;
-        mService.loadProducts(fromIndex, toIndex, new Function() {
-            @Override
-            public void call(Object... args) {
-                if (args[0] != null) {
-                    Log.e(TAG, (String) args[0]);
-                } else {
-                    postNotifyDataSetChanged(toIndex, updateLoadingIndicator);
-                    Log.i(TAG, "loadMore_After - itemCount: " + getItemCount());
+        int toIndex = getItemCount() + PAGE_SIZE-1;
+        final int newItemCount = toIndex;
+        if (newItemCount > getItemCount() ) {
+            if (updateLoadingIndicator) showLoadingIndicator();
+            mService.loadProducts(fromIndex, toIndex, new Function() {
+                @Override
+                public void call(Object... args) {
+                    if (args[0] != null) {
+                        Log.e(TAG, (String) args[0]);
+                        if (updateLoadingIndicator) hideLoadingIndicator();
+                    } else {
+                        postNotifyDataSetChanged(newItemCount, updateLoadingIndicator);
+                        Log.i(TAG, "loadMore_After - itemCount: " + getItemCount());
+                    }
+                    onComplete.call(null, null);
                 }
-                onComplete.call(null, null);
-            }
-        });
+            });
+        }
     }
 
     public void showLoadingIndicator() {

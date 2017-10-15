@@ -37,7 +37,6 @@ public class ProductDetailAdapter extends FragmentPagerAdapter {
                 mFirstFragmentLoaded = true;
             }
         }
-
         if (fragments.containsKey(position)) {
             return fragments.get(position);
         }
