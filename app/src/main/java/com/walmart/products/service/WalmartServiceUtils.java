@@ -3,6 +3,8 @@ package com.walmart.products.service;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.util.LruCache;
 
@@ -34,6 +36,14 @@ import static com.walmart.products.service.WalmartService.CacheEntry;
  * then you MUST pass the dependency as a parameter to the function.
  *
  * Also this class should have ZERO member variables.
+ *
+ *
+ *  INFO: About the service callbacks and threads
+ *
+ *  - HttpCalls are executed within a worker thread from a threadpool inside AsyncHttpClient
+ *  - When an http call is complete, a new thread is created for parsing JSON
+ *  - After parsing, the onComplete callback is called on the original callers thread.
+ *  - If your app called from the UI thread, it will get called back on the UI thread.
  *
  */
 @Singleton
@@ -88,12 +98,25 @@ public class WalmartServiceUtils {
                 sb.append("loadPage failed - page already being loaded: ").append(pageNum);
                 sb.append(", onComplete will be called once it is loaded");
                 Log.i(TAG, sb.toString());
-                /*
-                EventEmitter is needed in the situation that client A is in the process of loading page X,
-                And client B comes in and asks for page X, we need to now make two callbacks for when page X
-                has completed loading, one to A and one to B. An EventEmitter simplifies this task.
-                 */
-                emitter.once(PAGE_LOADED_EVENT, onComplete);
+                // EventEmitter is needed in the situation that client A is in the process of loading page X,
+                // And client B comes in and asks for page X, we need to now make two callbacks for when page X
+                // has completed loading, one to A and one to B. An EventEmitter simplifies this task.
+                final Handler handler = new Handler(Looper.myLooper());
+                // make sure to make the callback on the callers thread.
+                // the original caller thread that asked to to load page X,
+                // will call this Function which will spawn post the callback to
+                // the original callers thread...
+                emitter.once(PAGE_LOADED_EVENT, new Function() {
+                    @Override
+                    public void call(final Object... args) {
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                onComplete.call(args);
+                            }
+                        });
+                    }
+                });
                 return;
             }
             pagesLoading.put(pageNum, true);
