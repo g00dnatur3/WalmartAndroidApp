@@ -129,13 +129,12 @@ public class WalmartServiceUtils {
                 loadThumbnails(context, cacheEntry, pageNum, new Function() {
                     @Override
                     public void call(Object... args) {
-                        synchronized (WalmartServiceUtils.class) {
-                            pagesLoading.remove(pageNum); // no longer loading page, remove
-                            mPageCache.put(pageNum, cacheEntry);
-                        }
+                        pagesLoading.remove(pageNum); // no longer loading page, remove
+                        mPageCache.put(pageNum, cacheEntry);
                         Log.i(TAG, "loadPage complete - page: " + pageNum);
                         onComplete.call(null, null);
                         if (emitter.hasListeners(PAGE_LOADED_EVENT)) emitter.emit(PAGE_LOADED_EVENT);
+
                     }
                 });
             }
