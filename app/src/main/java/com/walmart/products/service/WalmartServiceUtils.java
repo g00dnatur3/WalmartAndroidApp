@@ -93,9 +93,9 @@ public class WalmartServiceUtils {
                 emitter.once(PAGE_LOADED_EVENT, onComplete);
                 return;
             }
-            // ok lets load the page
             pagesLoading.put(pageNum, true);
         }
+        // ok lets load the page
         mHttpClient.get(context, BASE_URL + pageUrl, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JsonNode pageNode) {
@@ -108,9 +108,9 @@ public class WalmartServiceUtils {
                             pagesLoading.remove(pageNum); // no longer loading page, remove
                             mPageCache.put(pageNum, cacheEntry);
                         }
-                        if (emitter.hasListeners(PAGE_LOADED_EVENT)) emitter.emit(PAGE_LOADED_EVENT);
                         Log.i(TAG, "loadPage complete - page: " + pageNum);
                         onComplete.call(null, null);
+                        if (emitter.hasListeners(PAGE_LOADED_EVENT)) emitter.emit(PAGE_LOADED_EVENT);
                     }
                 });
             }
@@ -118,6 +118,7 @@ public class WalmartServiceUtils {
             public void onFailure(int status, Header[] headers, Throwable error, JsonNode errorResponse) {
                 pagesLoading.remove(pageNum); // no longer loading page, remove
                 onComplete.call(logAndGetHttpError("loadPage", pageUrl, status, error));
+                if (emitter.hasListeners(PAGE_LOADED_EVENT)) emitter.emit(PAGE_LOADED_EVENT);
             }
         });
     }
