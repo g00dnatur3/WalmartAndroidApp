@@ -104,8 +104,7 @@ public class WalmartServiceUtils {
                 final Handler handler = new Handler(Looper.myLooper());
                 // make sure to make the callback on the callers thread.
                 // the original caller thread that asked to to load page X,
-                // will call this Function which will spawn post the callback to
-                // the original callers thread...
+                // will call this Function which will post callback to original callers thread...
                 emitter.once(PAGE_LOADED_EVENT, new Function() {
                     @Override
                     public void call(final Object... args) {
