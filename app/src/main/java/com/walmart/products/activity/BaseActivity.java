@@ -137,24 +137,22 @@ abstract class BaseActivity extends AppCompatActivity {
             return;
         }
         int fromIndex = getItemCount();
-        int toIndex = getItemCount() + PAGE_SIZE-1;
-        final int newItemCount = toIndex;
-        if (newItemCount > getItemCount() ) {
-            if (updateLoadingIndicator) showLoadingIndicator();
-            mService.loadProducts(fromIndex, toIndex, new Function() {
-                @Override
-                public void call(Object... args) {
-                    if (args[0] != null) {
-                        Log.e(TAG, (String) args[0]);
-                        if (updateLoadingIndicator) hideLoadingIndicator();
-                    } else {
-                        postNotifyDataSetChanged(newItemCount, updateLoadingIndicator);
-                        //Log.i(TAG, "loadMore_After - itemCount: " + getItemCount());
-                    }
-                    onComplete.call(null, null);
+        final int toIndex = getItemCount() + PAGE_SIZE-1;
+        if (updateLoadingIndicator) showLoadingIndicator();
+        mService.loadProducts(fromIndex, toIndex, new Function() {
+            @Override
+            public void call(Object... args) {
+                if (args[0] != null) {
+                    Log.e(TAG, (String) args[0]);
+                    if (updateLoadingIndicator) hideLoadingIndicator();
+                } else {
+                    postNotifyDataSetChanged(toIndex, updateLoadingIndicator);
+                    //Log.i(TAG, "loadMore_After - itemCount: " + getItemCount());
                 }
-            });
-        }
+                onComplete.call(null, null);
+            }
+        });
+
     }
 
     public void showLoadingIndicator() {
