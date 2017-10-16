@@ -106,10 +106,9 @@ public class ProductDetailFragment extends Fragment {
                 Log.e(TAG, "showProduct failed  - productNode is null, retrying at position: " + mPosition);
                 // sometimes if the user is being very busy with the device, it can get here.
                 // - explanation:
-                // the reason this can happen revolves around the fact that I am only allowing 2 pages
-                // to be cached.. so if the user scrolls fast enuff and clicks on an item, it can  get here
+                // if the user scrolls fast enuff (up then down) and clicks on an item, it can get here
                 // because more than MAX_PAGES pages are loading, the lru policy kicks in and purges
-                // the page the user happens to be on...
+                // the page the user happens to be on... its still very rare it gets here though.
                 // -
                 // lets have a single retry to be more robust
                 // - fix:
