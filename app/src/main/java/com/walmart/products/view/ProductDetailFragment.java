@@ -68,15 +68,16 @@ public class ProductDetailFragment extends Fragment {
         // viewPager has 3 views at any given moment and only one is visible
         // in order to know when they are all completed loading
         // we check if the mFragmentsLoading.isEmpty
-        showLoadingIndicator();
-
-        final Function onComplete = new Function() {
+        loadProducts(new Function() {
             @Override
             public void call(Object... args) {
                 showProduct(mPosition);
             }
-        };
+        });
+    }
 
+    private void loadProducts(Function onComplete) {
+        showLoadingIndicator();
         // if we are near the end, load more
         if (mActivity.getItemCount()-mPosition <= 20) {
             Log.i(TAG, "Calling mActivity.loadMore");
@@ -87,41 +88,73 @@ public class ProductDetailFragment extends Fragment {
             int fromIndex = mPosition - (PAGE_SIZE/2);
             if (fromIndex < 0) fromIndex = 0;
             int toIndex = mPosition + (PAGE_SIZE/2);
-            mActivity.ensureDataLoaded(fromIndex, toIndex, onComplete, false); //false=do not update loading indicator
+            mActivity.ensureDataLoaded(
+                    fromIndex,
+                    toIndex,
+                    onComplete,
+                    false); //false=do not update loading indicator
         }
     }
 
-    private void showProduct(int index) {
+    private void showProduct(final int index) {
         final WalmartService service = mActivity.getService();
         if (service != null) {
             JsonNode productNode = service.getProduct(index);
             if (productNode != null) {
-                if (productNode.get("name") != null) {
-                    mName.setText(productNode.get("name").textValue());
-                }
-                if (productNode.get("shortDescription") != null) {
-                    mDesc.setText(productNode.get("shortDescription").textValue());
-                }
-                Function onComplete = new Function() {
+                showProduct(service, productNode);
+            } else {
+                Log.e(TAG, "showProduct failed  - productNode is null, retrying at position: " + mPosition);
+                // sometimes if the user is being very busy with the device, it can get here.
+                // - explanation:
+                // the reason this can happen revolves around the fact that I am only allowing 2 pages
+                // to be cached.. so if the user scrolls fast enuff and clicks on an item, it can  get here
+                // because more than 2 pages are loading, the lru policy kicks in and purges
+                // the page the user happens to be on...
+                // -
+                // lets have a single retry to be more robust
+                // - fix:
+                // not an easy bug to reproduce, fix verified from the log:
+                // Log: WalmartServiceUtils: getPage failed - at: 13, reason: page not loaded into cache
+                // Log: ProductDetailFragment: showProduct failed  - productNode is null, retrying at position: 1389
+                // prdouct shows up corretly after retry... before it was blank.
+                loadProducts(new Function() {
                     @Override
                     public void call(Object... args) {
-                        if (args[0] != null) {
-                            Log.e(TAG, args[0].toString());
+                        JsonNode _productNode = service.getProduct(index);
+                        if (_productNode == null) {
+                            Log.e(TAG, "showProduct retry failed  - productNode is null, position: " + mPosition);
+                            hideLoadingIndicator();
                         } else {
-                            mImage.setImageBitmap((Bitmap) args[1]);
+                            showProduct(service, _productNode);
                         }
-                        hideLoadingIndicator();
                     }
-                };
-                service.getMediumImage(mPosition, onComplete);
-            } else {
-                hideLoadingIndicator();
-                Log.e(TAG, "showProduct failed  - productNode is null, position: " + mPosition);
+                });
             }
         } else {
             hideLoadingIndicator();
             Log.e(TAG, "showProduct failed  - WalmartService is not bound, position: " + mPosition);
         }
+    }
+
+    private void showProduct(WalmartService service, JsonNode productNode) {
+        if (productNode.get("name") != null) {
+            mName.setText(productNode.get("name").textValue());
+        }
+        if (productNode.get("shortDescription") != null) {
+            mDesc.setText(productNode.get("shortDescription").textValue());
+        }
+        Function onComplete = new Function() {
+            @Override
+            public void call(Object... args) {
+                if (args[0] != null) {
+                    Log.e(TAG, args[0].toString());
+                } else {
+                    mImage.setImageBitmap((Bitmap) args[1]);
+                }
+                hideLoadingIndicator();
+            }
+        };
+        service.getMediumImage(mPosition, onComplete);
     }
 
     private void showLoadingIndicator() {
