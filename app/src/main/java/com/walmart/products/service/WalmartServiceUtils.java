@@ -65,7 +65,10 @@ public class WalmartServiceUtils {
         return mPageCache.get(index) != null;
     }
 
-    protected void loadPage(final EventEmitter emitter, final Context context, final Map<Integer, Boolean> pagesLoading, final int pageNum, final Function onComplete) {
+    protected void loadPage(final EventEmitter emitter,
+                            final Context context,
+                            final Map<Integer, Boolean> pagesLoading,
+                            final int pageNum, final Function onComplete) {
         // page already loaded
         if (isPageLoaded(pageNum)) {
             onComplete.call(null, null);
