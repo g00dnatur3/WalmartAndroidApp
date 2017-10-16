@@ -16,7 +16,7 @@ public class WalmartServiceConfig {
 
     public static final int PAGE_SIZE = 100;
 
-    public static final int MAX_PAGES = 2;
+    public static final int MAX_PAGES = 3;
 
     public static final int MIN_THREADS = 2;
 

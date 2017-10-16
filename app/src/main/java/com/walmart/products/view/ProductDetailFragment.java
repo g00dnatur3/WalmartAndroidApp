@@ -108,7 +108,7 @@ public class ProductDetailFragment extends Fragment {
                 // - explanation:
                 // the reason this can happen revolves around the fact that I am only allowing 2 pages
                 // to be cached.. so if the user scrolls fast enuff and clicks on an item, it can  get here
-                // because more than 2 pages are loading, the lru policy kicks in and purges
+                // because more than MAX_PAGES pages are loading, the lru policy kicks in and purges
                 // the page the user happens to be on...
                 // -
                 // lets have a single retry to be more robust
