@@ -119,7 +119,7 @@ abstract class BaseActivity extends AppCompatActivity {
 
                 } else {
                     postNotifyDataSetChanged(toIndex, updateLoadingIndicator);
-                    Log.i(TAG, "ensureDataLoaded_After - itemCount: " + getItemCount());
+                    //Log.i(TAG, "ensureDataLoaded_After - itemCount: " + getItemCount());
                 }
                 onComplete.call(null, null);
             }
@@ -149,7 +149,7 @@ abstract class BaseActivity extends AppCompatActivity {
                         if (updateLoadingIndicator) hideLoadingIndicator();
                     } else {
                         postNotifyDataSetChanged(newItemCount, updateLoadingIndicator);
-                        Log.i(TAG, "loadMore_After - itemCount: " + getItemCount());
+                        //Log.i(TAG, "loadMore_After - itemCount: " + getItemCount());
                     }
                     onComplete.call(null, null);
                 }
