@@ -197,7 +197,7 @@ public class WalmartServiceUtils {
             onComplete.call("thumbnailImage url is empty");
             return;
         }
-        loadBitmap(context, itemNode.get("thumbnailImage").textValue(), key, onComplete);
+        loadBitmap(context, itemNode.get("loadThumbnail").textValue(), key, onComplete);
     }
 
     protected void loadBitmap(Context context, final String url, final String key, final Function onComplete) {
@@ -209,7 +209,7 @@ public class WalmartServiceUtils {
             }
             @Override
             public void onFailure(int status, Header[] headers, byte[] binaryData, Throwable error) {
-                onComplete.call(logAndGetHttpError("loadThumbnail", url, status, error));
+                onComplete.call(logAndGetHttpError("loadBitmap", url, status, error));
             }
         });
     }
