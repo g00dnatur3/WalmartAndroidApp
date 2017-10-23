@@ -13,6 +13,7 @@ import com.walmart.products.service.WalmartServiceUtils;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -78,7 +79,7 @@ public class AppModule {
 
     @Provides @Singleton
     Map<Integer, String> providePageUrls() {
-        Map<Integer, String> pageUrls = Collections.synchronizedMap(new HashMap<Integer, String>());
+        Map<Integer, String> pageUrls = new ConcurrentHashMap<>();
         pageUrls.put(0, FIRST_PAGE_URL);
         return pageUrls;
     }
@@ -86,6 +87,6 @@ public class AppModule {
     @Provides @Singleton
     LruCache<Integer, WalmartService.CacheEntry> providePageCache() {
         // LruCache is already thread safe
-        return new LruCache<Integer, WalmartService.CacheEntry>(MAX_PAGES);
+        return new LruCache<>(MAX_PAGES);
     }
 }

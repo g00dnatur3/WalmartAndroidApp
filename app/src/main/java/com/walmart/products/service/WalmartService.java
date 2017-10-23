@@ -17,6 +17,7 @@ import com.walmart.products.util.Function;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.inject.Inject;
 
@@ -228,7 +229,7 @@ public class WalmartService extends Service {
         private final Map<String, Bitmap> mBitmaps;
         public CacheEntry(JsonNode page) {
             this.mPage = page;
-            mBitmaps = Collections.synchronizedMap(new HashMap<String, Bitmap>());
+            mBitmaps = new ConcurrentHashMap<>();
         }
         public JsonNode page() {
             return mPage;
